@@ -1,0 +1,77 @@
+-- Query 1, CASE
+-- Identify a player’s BMI and resulting classification; “Heavy”, “Mid”, “Light”
+SELECT
+    PlayerID,
+    PlayerName,
+    HeightIn,
+    WeightLbs,
+    ROUND(WeightLbs * 703.0 / (HeightIn * HeightIn), 2) AS BMI,
+    CASE
+        WHEN WeightLbs * 703.0 / (HeightIn * HeightIn) >= 30 THEN 'Heavy'
+        WHEN WeightLbs * 703.0 / (HeightIn * HeightIn) >= 25 THEN 'Mid'
+        ELSE 'Lean'
+    END AS BMI_Class
+FROM Player
+;
+
+-- Query 2 GROUP BY / HAVING, 
+-- Calculate the offensive efficiency of players having at least 1 goal
+Select
+P.playerid,
+sum(pgs.toi) as Tot_TOI,
+sum(pgs.goals) as Tot_Goals,
+round((sum(pgs.shots) / sum(pgs.TOI)),2) as GPM
+from player as p
+join playergamestats as pgs on p.playerid = pgs.playerid
+group by p.playerid
+having Tot_Goals > 0
+order by Tot_Goals desc
+;
+
+-- Query 3 Subquery
+-- Retrieve the p;ayers where the total TOI exceeded the average TOI for all games.
+SELECT 
+    p.PlayerID,
+    p.PlayerName,
+    SUM(s.TOI) AS Tot_TOI
+FROM Player p
+JOIN PlayerGameStats s 
+    ON p.PlayerID = s.PlayerID
+GROUP BY p.PlayerID
+HAVING SUM(s.TOI) > (
+    SELECT AVG(PlayerTotalTOI)
+    FROM (
+        SELECT SUM(TOI) AS PlayerTotalTOI
+        FROM PlayerGameStats
+        GROUP BY PlayerID))
+;
+
+-- Query 4 OUTER JOIN
+-- Return all teams and their stadium info
+SELECT 
+t.TeamID,
+t.TeamName,
+s.StadiumName,
+s.City,
+s.StateABR
+FROM Team t
+LEFT JOIN Stadium s
+ON t.StadiumID = s.StadiumID
+;
+
+-- Query 5 PARTITION BY
+-- Rank players within each team by salary (highest to lowest)
+SELECT
+p.TeamID,
+t.TeamName,
+p.PlayerID,
+p.PlayerName,
+c.SalaryAnnual,
+RANK() OVER (PARTITION BY p.TeamID ORDER BY c.SalaryAnnual DESC) AS SalaryRank
+FROM Player p
+JOIN Contract c
+ON p.PlayerID = c.PlayerID
+JOIN Team t
+ON p.TeamID = t.TeamID
+;
+ORDER BY p.TeamID, SalaryAnnual DESC

@@ -1,4 +1,6 @@
 # OBA444_SportsDatabaseMgmt_FinalProject
+See FinalReport.pdf for full report with diagrams and results for querries.
+
 ## Operational Database
 I first developed my Relational Database for a hockey league in dbdiagram.io then exported it to a “MySQL” file. Where I then used an LLM to convert the MySQL code into SQLlite which could be read with https://orpinots.github.io/sql-sandbox/ to visualize the diagram and construct queries. The Dataset contains 9 entities; Stadium, Team, Player, Coach, Management, Contract, Game, Season, and PlayerGameStats. The schema is normalized to a level of 3NF, but is essentially in BCNF. In my schema every determinant is either a primary key or a foreign key pointing to a primary key, with only slight exceptions. In Season, ‘Year’ could theoretically be unique but it’s not declared unique. In Stadium, ‘StadiumName’ could be unique, but it’s not declared as such. While BCNF does not require those to be declared unique; it requires no functional dependency violations, which my schema does not have.
 See files begining with OD_x for insert functions and querries for SQLlite.

@@ -1,0 +1,64 @@
+-- Query 1, CASE
+-- Identify if a team’s fanbase favors either Beer or Hot Dog for home games
+Select
+p.TeamID,
+round(avg(p.Age),2) as TeamAge,
+round(avg(p.heightInches),2) as TeamHeight,
+round(avg(p.weightLbs),2) as TeamWeight,
+CASE when g.beerSales > g.hotDogSales then 'Beer Fans' else 'Hot Dog Fans' end as 'FanFavorite'
+from player as p
+join game as g on g.homeTeamID = p.TeamID
+group by p.TeamID
+order by TeamAge desc
+;
+
+-- Query 2 GROUP BY / HAVING, 
+-- Calculate the offensive efficiency of players having at least 10 shots
+Select
+pg.playerID,
+P.salary,
+round(sum(pg.TOI),1) as Tot_TOI,
+sum(pg.shots) as Tot_Shots,
+round((sum(pg.shots) / sum(pg.TOI)),2) as SPM
+from PlayerGameStats as pg
+join Player as p on p.playerID = pg.playerID
+group by pg.playerID
+having sum(pg.shots) > 10
+order by SPM desc
+;
+
+-- Query 3 Subquery
+-- Retrieve the games where the total ticket sales exceeded the average ticket sales for all games.
+Select
+G.gameid,
+G.hometeamid,
+G.awayteamid,
+g.ticketsales
+from game as g
+where g.ticketsales > (select avg(ticketsales) from game group by gameid)
+;
+
+-- Query 4 OUTER JOIN
+-- List every team whether or not they have games recorded, showing total ticket revenue for home games.
+select 
+t.teamID,
+ 	t.teamName,
+ 	SUM(g.ticketSales) AS totalHomeTicketRevenue
+from team as t
+full outer JOIN Game as g on t.teamid = g.hometeamid
+group by t.teamID, t.teamName
+order by totalHomeTicketRevenue desc
+;
+
+
+-- Query 5 PARTITION BY
+-- Find the top 3 tallest skaters within each team
+select *
+from (
+Select p.playerName, t.teamName, p.heightinches,
+rank() over(partition by p.teamid order by p.heightinches desc) as heightRank
+from player as p
+join team as t on t.teamid = p.teamid
+order by p.teamid, heightRank )
+where heightRank <= 3
+;

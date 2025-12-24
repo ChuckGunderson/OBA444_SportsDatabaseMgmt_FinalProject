@@ -1,0 +1,148 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE Player (
+  PlayerID INTEGER PRIMARY KEY,
+  PlayerName TEXT,
+  JerseyNumber INTEGER,
+  Position TEXT,
+  TeamID INTEGER,
+  HeightIn INTEGER,
+  WeightLbs INTEGER,
+  FOREIGN KEY (TeamID) REFERENCES Team(TeamID)
+);
+
+CREATE TABLE Contract (
+  ContractID INTEGER PRIMARY KEY,
+  PlayerID INTEGER,
+  TeamID INTEGER,
+  StartDate TEXT,
+  EndDate TEXT,
+  SalaryAnnual INTEGER,
+  FOREIGN KEY (PlayerID) REFERENCES Player(PlayerID),
+  FOREIGN KEY (TeamID) REFERENCES Team(TeamID)
+);
+
+CREATE TABLE Team (
+  TeamID INTEGER PRIMARY KEY,
+  TeamName TEXT,
+  StadiumID INTEGER,
+  FOREIGN KEY (StadiumID) REFERENCES Stadium(StadiumID)
+);
+
+CREATE TABLE Management (
+  ManagerID INTEGER PRIMARY KEY,
+  MangerName TEXT,
+  Position TEXT,
+  Salary INTEGER,
+  TeamID INTEGER,
+  FOREIGN KEY (TeamID) REFERENCES Team(TeamID)
+);
+
+CREATE TABLE Coach (
+  CoachID INTEGER PRIMARY KEY,
+  CoachName TEXT,
+  Position TEXT,
+  Salary INTEGER,
+  TeamID INTEGER,
+  FOREIGN KEY (TeamID) REFERENCES Team(TeamID)
+);
+
+CREATE TABLE Stadium (
+  StadiumID INTEGER PRIMARY KEY,
+  StadiumName TEXT,
+  City TEXT,
+  StateABR TEXT,
+  Address TEXT,
+  PriceOfHotDog INTEGER,
+  PriceofBeer INTEGER
+);
+
+CREATE TABLE Season (
+  SeasonID INTEGER PRIMARY KEY,
+  Year TEXT
+);
+
+CREATE TABLE Game (
+  GameID INTEGER PRIMARY KEY,
+  HomeTeamID INTEGER,
+  AwayTeamID INTEGER,
+  SeasonID INTEGER,
+  GameDate TEXT,
+  Attendance INTEGER,
+  HomeScore INTEGER,
+  AwayScore INTEGER,
+  FOREIGN KEY (HomeTeamID) REFERENCES Team(TeamID),
+  FOREIGN KEY (AwayTeamID) REFERENCES Team(TeamID),
+  FOREIGN KEY (SeasonID) REFERENCES Season(SeasonID)
+);
+
+CREATE TABLE PlayerGameStats (
+  GameID INTEGER,
+  SeasonID INTEGER,
+  PlayerID INTEGER,
+  TOI INTEGER,
+  Goals INTEGER,
+  Shots INTEGER,
+  Assits INTEGER,
+  Blocks INTEGER,
+  Hit INTEGER,
+  Penalties INTEGER,
+  PenaltyMin INTEGER,
+  PRIMARY KEY (GameID, PlayerID),
+  FOREIGN KEY (GameID) REFERENCES Game(GameID),
+  FOREIGN KEY (SeasonID) REFERENCES Season(SeasonID),
+  FOREIGN KEY (PlayerID) REFERENCES Player(PlayerID)
+);
+
+-- Insert Functions
+INSERT INTO Stadium (StadiumID, StadiumName, City, StateABR, Address, PriceOfHotDog, PriceofBeer) VALUES
+(1, 'Cascade Arena', 'Eugene', 'OR', '100 Ice Ave', 7, 12),
+(2, 'Rocky Rink', 'Boulder', 'CO', '42 Mountain Blvd', 6, 10);
+
+INSERT INTO Team (TeamID, TeamName, StadiumID) VALUES
+(1, 'Eugene Yetis', 1),
+(2, 'Boulder Blizzards', 2);
+
+INSERT INTO Season (SeasonID, Year) VALUES
+(1, '2025-2026');
+
+INSERT INTO Player (PlayerID, PlayerName, JerseyNumber, Position, TeamID, HeightIn, WeightLbs) VALUES
+(1, 'Alex Carter',     9,  'LW', 1, 72, 185),
+(2, 'Max Dalton',     13,  'RW', 1, 73, 190),
+(3, 'Tim Johnson',     5,  'D',  1, 75, 205),
+(4, 'Evan Lee',       30,  'G',  1, 74, 195),
+(5, 'Jake Reilly',    22,  'LW', 2, 71, 180),
+(6, 'Chris Stone',     7,  'RW', 2, 74, 200),
+(7, 'Owen Phillips',  55,  'D',  2, 76, 210),
+(8, 'Ryan Murphy',    29,  'G',  2, 73, 198);
+
+INSERT INTO Contract (ContractID, PlayerID, TeamID, StartDate, EndDate, SalaryAnnual) VALUES
+(1,  1, 1, '2025-07-01', '2027-06-30', 2500000),
+(2,  2, 1, '2025-07-01', '2026-06-30', 1800000),
+(3,  3, 1, '2025-07-01', '2028-06-30', 3100000),
+(4,  4, 1, '2025-07-01', '2026-06-30', 2200000),
+(5,  5, 2, '2025-07-01', '2027-06-30', 2400000),
+(6,  6, 2, '2025-07-01', '2026-06-30', 2000000),
+(7,  7, 2, '2025-07-01', '2028-06-30', 3300000),
+(8,  8, 2, '2025-07-01', '2026-06-30', 2100000);
+
+INSERT INTO Game (GameID, HomeTeamID, AwayTeamID, SeasonID, GameDate, Attendance, HomeScore, AwayScore) VALUES
+(1, 1, 2, 1, '2025-10-22', 12800, 4, 3);
+
+INSERT INTO PlayerGameStats (GameID, SeasonID, PlayerID, TOI, Goals, Shots, Assits, Blocks, Hit, Penalties, PenaltyMin) VALUES
+(1, 1, 1, 18, 1, 4, 1, 0, 2, 0, 0),
+(1, 1, 2, 20, 2, 5, 0, 1, 3, 1, 2),
+(1, 1, 3, 24, 0, 2, 1, 4, 1, 0, 0),
+(1, 1, 4, 60, 0, 0, 0, 0, 0, 0, 0),
+(1, 1, 5, 17, 1, 3, 0, 0, 1, 0, 0),
+(1, 1, 6, 19, 1, 4, 1, 1, 2, 0, 0),
+(1, 1, 7, 26, 0, 1, 1, 5, 2, 1, 2),
+(1, 1, 8, 60, 0, 0, 0, 0, 0, 0, 0);
+
+INSERT INTO Management (ManagerID, MangerName, Position, Salary, TeamID) VALUES
+(1, 'Sarah Kim', 'General Manager', 1500000, 1),
+(2, 'Leo Grant', 'General Manager', 1450000, 2);
+
+INSERT INTO Coach (CoachID, CoachName, Position, Salary, TeamID) VALUES
+(1, 'Mike Turner', 'Head Coach', 1200000, 1),
+(2, 'Tom Alvarez', 'Head Coach', 1150000, 2);
